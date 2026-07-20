@@ -9,7 +9,7 @@ export function MediaView({ media }: { media: Pick<MediaAsset, 'kind' | 'storage
         href={media.external_url}
         target="_blank"
         rel="noreferrer"
-        className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-3 text-sm text-brand-600 ring-1 ring-slate-100 hover:bg-slate-100"
+        className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-3 text-sm text-brand-600 ring-1 ring-slate-100 hover:bg-slate-100 dark:bg-slate-900 dark:text-brand-100 dark:ring-slate-700 dark:hover:bg-slate-700"
       >
         🔗 <span className="truncate">{media.external_url}</span>
       </a>
@@ -32,7 +32,7 @@ export function MediaView({ media }: { media: Pick<MediaAsset, 'kind' | 'storage
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-3 text-sm text-brand-600 ring-1 ring-slate-100 hover:bg-slate-100"
+          className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-3 text-sm text-brand-600 ring-1 ring-slate-100 hover:bg-slate-100 dark:bg-slate-900 dark:text-brand-100 dark:ring-slate-700 dark:hover:bg-slate-700"
         >
           📄 <span className="truncate">Abrir documento</span>
         </a>

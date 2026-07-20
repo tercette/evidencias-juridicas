@@ -26,7 +26,7 @@ export function ForgotPasswordPage() {
 
   return (
     <div className="mt-6 space-y-5">
-      <h1 className="text-center text-2xl font-bold text-slate-800">Recuperar senha</h1>
+      <h1 className="text-center text-2xl font-bold text-slate-800 dark:text-slate-100">Recuperar senha</h1>
       <Card>
         {sent ? (
           <Alert type="success">
@@ -35,14 +35,14 @@ export function ForgotPasswordPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && <Alert>{error}</Alert>}
-            <p className="text-sm text-slate-500">Informe seu e-mail e enviaremos um link para criar uma nova senha.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Informe seu e-mail e enviaremos um link para criar uma nova senha.</p>
             <Input label="E-mail" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Enviando…' : 'Enviar link'}
             </Button>
           </form>
         )}
-        <Link to="/login" className="mt-4 block text-center text-sm text-brand-600 hover:underline">
+        <Link to="/login" className="mt-4 block text-center text-sm text-brand-600 hover:underline dark:text-brand-100">
           Voltar ao login
         </Link>
       </Card>

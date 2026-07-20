@@ -5,6 +5,7 @@ import type { MediaAsset } from '../types'
 import { formatDate, kindLabel } from '../lib/format'
 import { MediaView } from '../components/MediaView'
 import { Card, Spinner, Alert } from '../components/ui'
+import { ThemeToggle } from '../components/ThemeToggle'
 
 interface SharedEvidence {
   id: string
@@ -50,27 +51,30 @@ export function PublicViewPage() {
 
   return (
     <div className="mx-auto max-w-lg px-4 py-6">
+      <div className="flex justify-end">
+        <ThemeToggle />
+      </div>
       <header className="mb-4 text-center">
         <div className="text-3xl">🗂️</div>
-        <h1 className="mt-1 text-xl font-bold text-slate-800">Arquivo de Evidências</h1>
-        <p className="text-sm text-slate-400">Visualização somente leitura</p>
+        <h1 className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100">Arquivo de Evidências</h1>
+        <p className="text-sm text-slate-400 dark:text-slate-500">Visualização somente leitura</p>
       </header>
 
       {items.length === 0 && (
-        <Card className="text-center text-slate-500">Este arquivo ainda não possui evidências.</Card>
+        <Card className="text-center text-slate-500 dark:text-slate-400">Este arquivo ainda não possui evidências.</Card>
       )}
 
       <div className="space-y-4">
         {items.map((ev) => (
           <Card key={ev.id} className="space-y-3">
             <div>
-              <h2 className="font-semibold text-slate-800">{ev.title}</h2>
-              <p className="text-xs text-slate-400">📅 {formatDate(ev.fact_date)}</p>
+              <h2 className="font-semibold text-slate-800 dark:text-slate-100">{ev.title}</h2>
+              <p className="text-xs text-slate-400 dark:text-slate-500">📅 {formatDate(ev.fact_date)}</p>
             </div>
-            {ev.description && <p className="whitespace-pre-wrap text-sm text-slate-600">{ev.description}</p>}
+            {ev.description && <p className="whitespace-pre-wrap text-sm text-slate-600 dark:text-slate-300">{ev.description}</p>}
             {ev.media.map((m) => (
               <div key={m.id} className="space-y-1">
-                <span className="text-xs text-slate-400">{kindLabel(m.kind)}</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500">{kindLabel(m.kind)}</span>
                 <MediaView media={m} />
               </div>
             ))}
@@ -78,7 +82,7 @@ export function PublicViewPage() {
         ))}
       </div>
 
-      <footer className="mt-8 text-center text-xs text-slate-300">Gerado pelo app Arquivo de Evidências</footer>
+      <footer className="mt-8 text-center text-xs text-slate-300 dark:text-slate-600">Gerado pelo app Arquivo de Evidências</footer>
     </div>
   )
 }

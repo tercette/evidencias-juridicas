@@ -37,14 +37,14 @@ export function AccountPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-xl font-bold text-slate-800">Minha conta</h1>
+      <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">Minha conta</h1>
       <Card>
-        <div className="text-sm text-slate-500">Conectado como</div>
-        <div className="font-medium text-slate-800">{user?.email}</div>
+        <div className="text-sm text-slate-500 dark:text-slate-400">Conectado como</div>
+        <div className="font-medium text-slate-800 dark:text-slate-100">{user?.email}</div>
       </Card>
 
       <Card>
-        <h2 className="mb-3 font-semibold text-slate-800">Trocar senha</h2>
+        <h2 className="mb-3 font-semibold text-slate-800 dark:text-slate-100">Trocar senha</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <Alert>{error}</Alert>}
           {msg && <Alert type="success">{msg}</Alert>}

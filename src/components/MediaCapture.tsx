@@ -48,8 +48,8 @@ export function MediaCapture({ onAdd }: { onAdd: (m: PendingMedia) => void }) {
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-dashed border-slate-300 p-4">
-      <p className="text-sm font-medium text-slate-600">Adicionar mídia</p>
+    <div className="space-y-4 rounded-2xl border border-dashed border-slate-300 p-4 dark:border-slate-600">
+      <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Adicionar mídia</p>
 
       {/* Câmera do celular abre direto com o atributo "capture". No desktop, abre o seletor de arquivos. */}
       <div className="grid grid-cols-2 gap-2">
@@ -225,7 +225,7 @@ function AudioRecorder({ onAdd }: { onAdd: (m: PendingMedia) => void }) {
       </Button>
       {error && (
         <div className="col-span-2 space-y-2">
-          <p className="text-xs text-red-600">{error}</p>
+          <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
           <Button type="button" variant="outline" onClick={() => fallbackInput.current?.click()}>
             🎧 Enviar um áudio do dispositivo
           </Button>

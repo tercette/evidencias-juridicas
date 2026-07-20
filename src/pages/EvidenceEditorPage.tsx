@@ -89,7 +89,7 @@ export function EvidenceEditorPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold text-slate-800">{isEdit ? 'Editar evidência' : 'Nova evidência'}</h1>
+      <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">{isEdit ? 'Editar evidência' : 'Nova evidência'}</h1>
       {error && <Alert>{error}</Alert>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -102,12 +102,12 @@ export function EvidenceEditorPage() {
         {/* Mídias já salvas (no modo edição) */}
         {existing.length > 0 && (
           <Card className="space-y-3">
-            <p className="text-sm font-medium text-slate-600">Mídias salvas</p>
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Mídias salvas</p>
             {existing.map((m) => (
               <div key={m.id} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-400">{kindLabel(m.kind)}</span>
-                  <button type="button" onClick={() => removeExisting(m)} className="text-xs text-red-500 hover:underline">
+                  <span className="text-xs text-slate-400 dark:text-slate-500">{kindLabel(m.kind)}</span>
+                  <button type="button" onClick={() => removeExisting(m)} className="text-xs text-red-500 hover:underline dark:text-red-400">
                     Remover
                   </button>
                 </div>
@@ -120,13 +120,13 @@ export function EvidenceEditorPage() {
         {/* Novas mídias pendentes */}
         {pending.length > 0 && (
           <Card className="space-y-3">
-            <p className="text-sm font-medium text-slate-600">A adicionar ({pending.length})</p>
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">A adicionar ({pending.length})</p>
             {pending.map((p) => (
-              <div key={p.localId} className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2">
-                <span className="truncate text-sm text-slate-600">
+              <div key={p.localId} className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2 dark:bg-slate-900">
+                <span className="truncate text-sm text-slate-600 dark:text-slate-300">
                   {kindLabel(p.kind)} — {p.filename ?? p.externalUrl}
                 </span>
-                <button type="button" onClick={() => removePending(p.localId)} className="text-xs text-red-500 hover:underline">
+                <button type="button" onClick={() => removePending(p.localId)} className="text-xs text-red-500 hover:underline dark:text-red-400">
                   Tirar
                 </button>
               </div>

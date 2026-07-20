@@ -27,8 +27,8 @@ export function LoginPage() {
     <div className="mt-6 space-y-5">
       <div className="text-center">
         <div className="text-4xl">🗂️</div>
-        <h1 className="mt-2 text-2xl font-bold text-slate-800">Arquivo de Evidências</h1>
-        <p className="mt-1 text-sm text-slate-500">Entre para acessar seu arquivo pessoal</p>
+        <h1 className="mt-2 text-2xl font-bold text-slate-800 dark:text-slate-100">Arquivo de Evidências</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Entre para acessar seu arquivo pessoal</p>
       </div>
 
       {!isSupabaseConfigured && (
@@ -59,10 +59,10 @@ export function LoginPage() {
           </Button>
         </form>
         <div className="mt-4 flex items-center justify-between text-sm">
-          <Link to="/recuperar" className="text-brand-600 hover:underline">
+          <Link to="/recuperar" className="text-brand-600 hover:underline dark:text-brand-100">
             Esqueci a senha
           </Link>
-          <Link to="/cadastro" className="text-brand-600 hover:underline">
+          <Link to="/cadastro" className="text-brand-600 hover:underline dark:text-brand-100">
             Criar conta
           </Link>
         </div>

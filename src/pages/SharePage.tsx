@@ -45,11 +45,11 @@ export function SharePage() {
 
   return (
     <div className="space-y-4">
-      <button onClick={() => navigate('/')} className="text-sm text-brand-600 hover:underline">
+      <button onClick={() => navigate('/')} className="text-sm text-brand-600 hover:underline dark:text-brand-100">
         ← Voltar
       </button>
-      <h1 className="text-xl font-bold text-slate-800">Compartilhar arquivo</h1>
-      <p className="text-sm text-slate-500">
+      <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">Compartilhar arquivo</h1>
+      <p className="text-sm text-slate-500 dark:text-slate-400">
         Gere um link de <b>somente leitura</b> para juízes, advogados ou quem precisar. Compartilhe pelo QR code, WhatsApp
         ou e-mail. Você pode revogar a qualquer momento.
       </p>
@@ -68,7 +68,7 @@ export function SharePage() {
         </Button>
       </Card>
 
-      {active.length === 0 && <p className="text-center text-sm text-slate-400">Nenhum link ativo.</p>}
+      {active.length === 0 && <p className="text-center text-sm text-slate-400 dark:text-slate-500">Nenhum link ativo.</p>}
 
       {active.map((link) => (
         <ShareCard key={link.id} link={link} onRevoke={() => handleRevoke(link.id)} />
@@ -95,15 +95,16 @@ function ShareCard({ link, onRevoke }: { link: ShareLink; onRevoke: () => void }
 
   return (
     <Card className="space-y-4">
-      {link.label && <p className="font-semibold text-slate-800">{link.label}</p>}
+      {link.label && <p className="font-semibold text-slate-800 dark:text-slate-100">{link.label}</p>}
 
       <div className="flex justify-center">
+        {/* Mantém o fundo branco para o QR permanecer legível/escaneável no tema escuro */}
         <div className="rounded-2xl bg-white p-3 ring-1 ring-slate-100">
           <QRCodeCanvas value={url} size={180} includeMargin />
         </div>
       </div>
 
-      <div className="break-all rounded-xl bg-slate-50 px-3 py-2 text-center text-xs text-slate-500">{url}</div>
+      <div className="break-all rounded-xl bg-slate-50 px-3 py-2 text-center text-xs text-slate-500 dark:bg-slate-900 dark:text-slate-400">{url}</div>
 
       <div className="grid grid-cols-2 gap-2">
         <Button variant="outline" onClick={copy}>
@@ -115,7 +116,7 @@ function ShareCard({ link, onRevoke }: { link: ShareLink; onRevoke: () => void }
         <a href={email}>
           <Button variant="outline" className="w-full">✉️ E-mail</Button>
         </a>
-        <Button variant="ghost" className="text-red-500" onClick={onRevoke}>
+        <Button variant="ghost" className="text-red-500 dark:text-red-400" onClick={onRevoke}>
           🚫 Revogar
         </Button>
       </div>

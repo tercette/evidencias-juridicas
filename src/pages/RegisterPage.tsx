@@ -40,7 +40,7 @@ export function RegisterPage() {
             Conta criada! Verifique seu e-mail para confirmar o cadastro (se a confirmação por e-mail estiver ativada) e
             depois faça login.
           </Alert>
-          <Link to="/login" className="mt-4 block text-center text-brand-600 hover:underline">
+          <Link to="/login" className="mt-4 block text-center text-brand-600 hover:underline dark:text-brand-100">
             Ir para o login
           </Link>
         </Card>
@@ -50,7 +50,7 @@ export function RegisterPage() {
 
   return (
     <div className="mt-6 space-y-5">
-      <h1 className="text-center text-2xl font-bold text-slate-800">Criar conta</h1>
+      <h1 className="text-center text-2xl font-bold text-slate-800 dark:text-slate-100">Criar conta</h1>
       <Card>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <Alert>{error}</Alert>}
@@ -61,7 +61,7 @@ export function RegisterPage() {
             {loading ? 'Criando…' : 'Criar conta'}
           </Button>
         </form>
-        <Link to="/login" className="mt-4 block text-center text-sm text-brand-600 hover:underline">
+        <Link to="/login" className="mt-4 block text-center text-sm text-brand-600 hover:underline dark:text-brand-100">
           Já tenho conta
         </Link>
       </Card>

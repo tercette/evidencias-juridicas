@@ -48,7 +48,7 @@ export function NewPasswordPage() {
 
   return (
     <div className="mt-6 space-y-5">
-      <h1 className="text-center text-2xl font-bold text-slate-800">Definir nova senha</h1>
+      <h1 className="text-center text-2xl font-bold text-slate-800 dark:text-slate-100">Definir nova senha</h1>
       <Card>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <Alert>{error}</Alert>}

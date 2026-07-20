@@ -33,21 +33,21 @@ export function EvidenceDetailPage() {
 
   return (
     <div className="space-y-4">
-      <button onClick={() => navigate('/')} className="text-sm text-brand-600 hover:underline">
+      <button onClick={() => navigate('/')} className="text-sm text-brand-600 hover:underline dark:text-brand-100">
         ← Voltar
       </button>
 
       <Card className="space-y-2">
-        <h1 className="text-xl font-bold text-slate-800">{ev.title}</h1>
-        <p className="text-sm text-slate-400">📅 {formatDate(ev.fact_date)}</p>
-        {ev.description && <p className="whitespace-pre-wrap text-slate-600">{ev.description}</p>}
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">{ev.title}</h1>
+        <p className="text-sm text-slate-400 dark:text-slate-500">📅 {formatDate(ev.fact_date)}</p>
+        {ev.description && <p className="whitespace-pre-wrap text-slate-600 dark:text-slate-300">{ev.description}</p>}
       </Card>
 
       {ev.media && ev.media.length > 0 && (
         <div className="space-y-3">
           {ev.media.map((m) => (
             <Card key={m.id} className="space-y-2">
-              <span className="text-xs text-slate-400">{kindLabel(m.kind)}</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500">{kindLabel(m.kind)}</span>
               <MediaView media={m} />
             </Card>
           ))}
