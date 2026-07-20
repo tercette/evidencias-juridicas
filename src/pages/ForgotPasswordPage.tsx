@@ -51,8 +51,8 @@ export function ForgotPasswordPage() {
   async function verifyAndReset(e: FormEvent) {
     e.preventDefault()
     setError('')
-    if (!/^\d{6}$/.test(code.trim())) {
-      setError('Digite o código de 6 dígitos que enviamos por e-mail.')
+    if (!/^\d{6,10}$/.test(code.trim())) {
+      setError('Digite o código numérico que enviamos por e-mail.')
       return
     }
     if (password.length < 6) {
@@ -103,7 +103,7 @@ export function ForgotPasswordPage() {
           <form onSubmit={requestCode} className="space-y-4">
             {error && <Alert>{error}</Alert>}
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Informe seu e-mail e enviaremos um <b>código de 6 dígitos</b> para criar uma nova senha.
+              Informe seu e-mail e enviaremos um <b>código</b> para criar uma nova senha.
             </p>
             <Input
               label="E-mail"
@@ -121,14 +121,14 @@ export function ForgotPasswordPage() {
           <form onSubmit={verifyAndReset} className="space-y-4">
             {error && <Alert>{error}</Alert>}
             <Alert type="success">
-              Enviamos um código de 6 dígitos para <b>{email}</b>. Confira sua caixa de entrada (e o spam).
+              Enviamos um código para <b>{email}</b>. Confira sua caixa de entrada (e o spam).
             </Alert>
             <Input
-              label="Código de 6 dígitos"
+              label="Código do e-mail"
               inputMode="numeric"
               autoComplete="one-time-code"
-              maxLength={6}
-              placeholder="000000"
+              maxLength={10}
+              placeholder="Código recebido"
               required
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
