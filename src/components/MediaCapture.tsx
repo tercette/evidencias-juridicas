@@ -107,46 +107,137 @@ export function MediaCapture({ onAdd }: { onAdd: (m: PendingMedia) => void }) {
   )
 }
 
+// Escolhe um formato de áudio suportado pelo navegador (varia entre Chrome/Firefox/Safari).
+function pickAudioMime(): string {
+  const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg']
+  const supported =
+    typeof MediaRecorder !== 'undefined' && typeof MediaRecorder.isTypeSupported === 'function'
+  for (const t of candidates) {
+    if (supported && MediaRecorder.isTypeSupported(t)) return t
+  }
+  return ''
+}
+
+// Traduz o erro do getUserMedia para uma mensagem clara em português.
+function micErrorMessage(err: unknown): string {
+  const e = err as { name?: string; message?: string }
+  switch (e?.name) {
+    case 'NotAllowedError':
+    case 'SecurityError':
+      return 'Permissão do microfone negada. Clique no cadeado da barra de endereço e permita o microfone.'
+    case 'NotFoundError':
+    case 'DevicesNotFoundError':
+      return 'Nenhum microfone encontrado. Verifique se há um microfone conectado e habilitado no sistema.'
+    case 'NotReadableError':
+      return 'O microfone está em uso por outro programa (Zoom, Meet, etc.). Feche-o e tente de novo.'
+    default:
+      return `Não foi possível gravar (${e?.name || 'erro'}): ${e?.message || 'tente novamente'}.`
+  }
+}
+
 // Gravador de áudio direto pelo microfone (usa MediaRecorder).
 function AudioRecorder({ onAdd }: { onAdd: (m: PendingMedia) => void }) {
   const [recording, setRecording] = useState(false)
+  const [seconds, setSeconds] = useState(0)
+  const [error, setError] = useState('')
   const recorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
+  const timerRef = useRef<number | null>(null)
+  const fallbackInput = useRef<HTMLInputElement>(null)
+
+  function stopTimer() {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+  }
 
   async function toggle() {
+    setError('')
     if (recording) {
       recorderRef.current?.stop()
       return
     }
+    // getUserMedia só existe em contexto seguro (https ou localhost).
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError('Este navegador/endereço não permite gravar (precisa ser HTTPS). Use “Arquivo do dispositivo” abaixo.')
+      return
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const rec = new MediaRecorder(stream)
+      const mime = pickAudioMime()
+      const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined)
       chunksRef.current = []
       rec.ondataavailable = (e) => e.data.size > 0 && chunksRef.current.push(e.data)
+      rec.onerror = () => setError('Falha durante a gravação. Tente novamente.')
       rec.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: rec.mimeType || 'audio/webm' })
+        stopTimer()
+        const type = rec.mimeType || mime || 'audio/webm'
+        const blob = new Blob(chunksRef.current, { type })
         stream.getTracks().forEach((t) => t.stop())
         setRecording(false)
+        setSeconds(0)
+        if (blob.size === 0) {
+          setError('A gravação ficou vazia. Verifique o microfone e tente novamente.')
+          return
+        }
+        const ext = type.includes('mp4') ? 'm4a' : type.includes('ogg') ? 'ogg' : 'webm'
         onAdd({
           localId: uid(),
           kind: 'audio',
           file: blob,
-          filename: `gravacao-${Date.now()}.webm`,
-          mime: blob.type,
+          filename: `gravacao-${Date.now()}.${ext}`,
+          mime: type,
           previewUrl: URL.createObjectURL(blob),
         })
       }
       rec.start()
       recorderRef.current = rec
       setRecording(true)
-    } catch {
-      alert('Não foi possível acessar o microfone. Verifique as permissões do navegador.')
+      setSeconds(0)
+      timerRef.current = window.setInterval(() => setSeconds((s) => s + 1), 1000)
+    } catch (err) {
+      setError(micErrorMessage(err))
     }
   }
 
+  function handleFallback(files: FileList | null) {
+    if (!files || !files[0]) return
+    const file = files[0]
+    onAdd({
+      localId: uid(),
+      kind: 'audio',
+      file,
+      filename: file.name,
+      mime: file.type,
+      previewUrl: URL.createObjectURL(file),
+    })
+    setError('')
+  }
+
+  const mm = String(Math.floor(seconds / 60)).padStart(2, '0')
+  const ss = String(seconds % 60).padStart(2, '0')
+
   return (
-    <Button type="button" variant={recording ? 'danger' : 'outline'} onClick={toggle}>
-      {recording ? '⏹️ Parar' : '🎙️ Gravar áudio'}
-    </Button>
+    <>
+      <Button type="button" variant={recording ? 'danger' : 'outline'} onClick={toggle}>
+        {recording ? `⏹️ Parar ${mm}:${ss}` : '🎙️ Gravar áudio'}
+      </Button>
+      {error && (
+        <div className="col-span-2 space-y-2">
+          <p className="text-xs text-red-600">{error}</p>
+          <Button type="button" variant="outline" onClick={() => fallbackInput.current?.click()}>
+            🎧 Enviar um áudio do dispositivo
+          </Button>
+          <input
+            ref={fallbackInput}
+            type="file"
+            accept="audio/*"
+            hidden
+            onChange={(e) => handleFallback(e.target.files)}
+          />
+        </div>
+      )}
+    </>
   )
 }
