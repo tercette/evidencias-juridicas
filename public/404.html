@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Arquivo de Evidências</title>
+    <!--
+      SPA GitHub Pages (rafgraph/spa-github-pages).
+      Como o GitHub Pages não tem roteamento de servidor, ele serve este 404.html
+      para qualquer rota inexistente (ex.: /evidencias-juridicas/v/token). Este script
+      guarda a rota na query string e redireciona para o index, que a reconstrói.
+      pathSegmentsToKeep = 1  ->  mantém o segmento do nome do repositório.
+    -->
+    <script>
+      (function () {
+        var pathSegmentsToKeep = 1
+        var l = window.location
+        l.replace(
+          l.protocol +
+            '//' +
+            l.hostname +
+            (l.port ? ':' + l.port : '') +
+            l.pathname
+              .split('/')
+              .slice(0, 1 + pathSegmentsToKeep)
+              .join('/') +
+            '/?/' +
+            l.pathname
+              .slice(1)
+              .split('/')
+              .slice(pathSegmentsToKeep)
+              .join('/')
+              .replace(/&/g, '~and~') +
+            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+            l.hash,
+        )
+      })()
+    </script>
+  </head>
+  <body></body>
+</html>
