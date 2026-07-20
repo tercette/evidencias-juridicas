@@ -18,8 +18,23 @@ App **mobile-first** para o usuário manter um arquivo pessoal de evidências (f
    - **anon public** key → `VITE_SUPABASE_ANON_KEY`
 4. (Opcional) Em **Authentication → Providers → Email**, você pode desligar "Confirm email"
    para testar mais rápido, ou deixar ligado para exigir confirmação por e-mail.
-5. Em **Authentication → URL Configuration**, adicione a URL do seu site em **Redirect URLs**
-   (ex.: `https://SEU-USUARIO.github.io/evidencias-juridicas/nova-senha`) para o link de "recuperar senha" funcionar em produção.
+5. Em **Authentication → URL Configuration**:
+   - **Site URL:** `https://SEU-USUARIO.github.io/evidencias-juridicas/`
+   - **Redirect URLs:** adicione `https://SEU-USUARIO.github.io/evidencias-juridicas/**` e `http://localhost:5173/**`
+     (o `/**` é curinga; o `localhost` é para o desenvolvimento).
+6. **Recuperação de senha por código (importante):** a tela "Recuperar senha" usa um **código de 6 dígitos**
+   em vez de link, porque filtros de e-mail (ex.: *Safe Links* do Outlook/Office365) pré-abrem links e consomem
+   o token de uso único, fazendo o link chegar "expirado". Para o código chegar no e-mail, edite o template em
+   **Authentication → Emails → Reset Password** e inclua o token, por exemplo:
+
+   ```html
+   <h2>Redefinir senha</h2>
+   <p>Use este código para criar uma nova senha:</p>
+   <p style="font-size:24px;font-weight:bold;letter-spacing:4px">{{ .Token }}</p>
+   ```
+
+   > Deixe **apenas o código** (`{{ .Token }}`) no template. Se mantiver o link `{{ .ConfirmationURL }}` junto,
+   > o cliente pode clicar nele e cair no fluxo antigo (sujeito ao problema do Safe Links).
 
 > A chave `anon` é **pública** e pode ir no front-end — o RLS é quem protege os dados.
 > **Nunca** exponha a chave `service_role`.
