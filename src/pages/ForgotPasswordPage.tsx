@@ -3,6 +3,21 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Button, Input, Card, Alert } from '../components/ui'
 
+// Converte o erro do Supabase numa mensagem clara em português.
+// Alguns erros de SMTP chegam como objeto/JSON vazio ("{}"), por isso o tratamento.
+function authErrorText(err: unknown): string {
+  const e = err as { message?: string; status?: number; code?: string } | null
+  const raw = (e?.message ?? '').trim()
+  const lower = raw.toLowerCase()
+  if (lower.includes('sending') || lower.includes('smtp') || lower === '{}' || raw === '') {
+    return 'Não foi possível enviar o e-mail. Verifique a configuração de SMTP no Supabase e tente novamente.'
+  }
+  if (e?.status === 429 || lower.includes('rate') || lower.includes('security purposes')) {
+    return 'Muitas tentativas em pouco tempo. Aguarde alguns instantes e tente de novo.'
+  }
+  return raw
+}
+
 // Recuperação de senha por CÓDIGO de 6 dígitos (verifyOtp), e não por link.
 // Motivo: filtros de segurança de e-mail (ex.: Safe Links do Outlook/Office365)
 // pré-abrem os links e consomem o token de uso único, fazendo o link chegar
@@ -25,7 +40,8 @@ export function ForgotPasswordPage() {
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim())
     setLoading(false)
     if (error) {
-      setError(error.message)
+      console.error('resetPasswordForEmail falhou:', error)
+      setError(authErrorText(error))
       return
     }
     setStep('code')
@@ -61,7 +77,8 @@ export function ForgotPasswordPage() {
     const { error: updateError } = await supabase.auth.updateUser({ password })
     setLoading(false)
     if (updateError) {
-      setError(updateError.message)
+      console.error('updateUser falhou:', updateError)
+      setError(authErrorText(updateError))
       return
     }
     navigate('/')
@@ -72,7 +89,10 @@ export function ForgotPasswordPage() {
     setLoading(true)
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim())
     setLoading(false)
-    if (error) setError(error.message)
+    if (error) {
+      console.error('reenviar código falhou:', error)
+      setError(authErrorText(error))
+    }
   }
 
   return (
