@@ -40,7 +40,8 @@ export function Layout({ children }: { children: ReactNode }) {
           )}
         </div>
       </header>
-      <main className="flex-1 px-4 py-5">{children}</main>
+      {/* pb generoso: no celular o último botão não fica colado no fim da tela */}
+      <main className="flex-1 px-4 pt-5 pb-20">{children}</main>
     </div>
   )
 }

@@ -52,7 +52,7 @@ export function PublicViewPage() {
   if (!items) return <Spinner />
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-6">
+    <div className="mx-auto max-w-lg px-4 pt-6 pb-20">
       <div className="flex justify-end">
         <ThemeToggle />
       </div>
