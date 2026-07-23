@@ -21,7 +21,7 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-3">
         <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">Minhas evidências</h1>
         <Link to="/compartilhar">
           <Button variant="outline" className="px-3 py-2">🔗 Compartilhar</Button>
