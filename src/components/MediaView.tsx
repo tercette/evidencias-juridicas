@@ -1,8 +1,27 @@
 import type { MediaAsset } from '../types'
-import { publicUrl } from '../lib/media'
+import { publicUrl, downloadUrl } from '../lib/media'
+
+// `filename` é opcional: a visualização pública recebe menos campos que o app.
+type ViewableMedia = Pick<MediaAsset, 'kind' | 'storage_path' | 'external_url' | 'mime_type'> & {
+  filename?: string | null
+}
+
+// Botão de download — aparece igual para o dono e para quem abre o link compartilhado.
+function DownloadLink({ media, label }: { media: ViewableMedia; label: string }) {
+  const href = downloadUrl(media.storage_path, media.filename)
+  if (!href) return null
+  return (
+    <a
+      href={href}
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:underline dark:text-brand-100"
+    >
+      ⬇️ {label}
+    </a>
+  )
+}
 
 // Renderiza uma mídia (foto/vídeo/áudio/link/documento) tanto no app quanto na página pública.
-export function MediaView({ media }: { media: Pick<MediaAsset, 'kind' | 'storage_path' | 'external_url' | 'mime_type'> }) {
+export function MediaView({ media }: { media: ViewableMedia }) {
   if (media.kind === 'link' && media.external_url) {
     return (
       <a
@@ -23,9 +42,19 @@ export function MediaView({ media }: { media: Pick<MediaAsset, 'kind' | 'storage
     case 'foto':
       return <img src={url} alt="Evidência" className="w-full rounded-xl object-cover" loading="lazy" />
     case 'video':
-      return <video src={url} controls className="w-full rounded-xl" />
+      return (
+        <div className="space-y-1.5">
+          <video src={url} controls className="w-full rounded-xl" />
+          <DownloadLink media={media} label="Baixar vídeo" />
+        </div>
+      )
     case 'audio':
-      return <audio src={url} controls className="w-full" />
+      return (
+        <div className="space-y-1.5">
+          <audio src={url} controls className="w-full" />
+          <DownloadLink media={media} label="Baixar áudio" />
+        </div>
+      )
     default:
       return (
         <a

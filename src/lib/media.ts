@@ -6,6 +6,16 @@ export function publicUrl(storagePath: string | null): string {
   return supabase.storage.from('media').getPublicUrl(storagePath).data.publicUrl
 }
 
+// URL que força o download ("salvar como") em vez de abrir no navegador.
+// O atributo HTML `download` é ignorado entre origens diferentes, por isso
+// usamos o parâmetro do próprio Storage, que envia Content-Disposition.
+export function downloadUrl(storagePath: string | null, filename?: string | null): string {
+  if (!storagePath) return ''
+  return supabase.storage.from('media').getPublicUrl(storagePath, {
+    download: filename || true,
+  }).data.publicUrl
+}
+
 export function kindFromMime(mime: string): MediaKind {
   if (mime.startsWith('image/')) return 'foto'
   if (mime.startsWith('video/')) return 'video'
