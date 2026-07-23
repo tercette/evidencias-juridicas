@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { QRCodeCanvas } from 'qrcode.react'
 import type { ShareLink } from '../types'
 import { listShareLinks, createShareLink, revokeShareLink, publicViewUrl } from '../lib/share'
+import { countEvidencesWithoutPdf, generateMissingPdfs } from '../lib/evidences'
 import { Button, Input, Card, Spinner, Alert } from '../components/ui'
 
 export function SharePage() {
@@ -11,6 +12,9 @@ export function SharePage() {
   const [label, setLabel] = useState('')
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
+  const [missingPdfs, setMissingPdfs] = useState(0)
+  const [pdfProgress, setPdfProgress] = useState('')
+  const [pdfMessage, setPdfMessage] = useState('')
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -18,7 +22,29 @@ export function SharePage() {
       .then(setLinks)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
+    countEvidencesWithoutPdf().then(setMissingPdfs).catch(() => setMissingPdfs(0))
   }, [])
+
+  // Gera o PDF das evidências antigas (criadas antes da conversão automática).
+  async function handleGenerateMissing() {
+    setError('')
+    setPdfProgress('Preparando…')
+    try {
+      const { total, failed } = await generateMissingPdfs((done, all) =>
+        setPdfProgress(`Gerando ${done} de ${all}…`),
+      )
+      setMissingPdfs(await countEvidencesWithoutPdf())
+      setPdfMessage(
+        failed > 0
+          ? `${total - failed} de ${total} PDFs gerados. ${failed} falharam — tente novamente.`
+          : `${total} PDF${total > 1 ? 's' : ''} gerado${total > 1 ? 's' : ''} com sucesso.`,
+      )
+    } catch (e) {
+      setError((e as Error).message ?? 'Não foi possível gerar os PDFs.')
+    } finally {
+      setPdfProgress('')
+    }
+  }
 
   async function handleCreate() {
     setCreating(true)
@@ -55,6 +81,25 @@ export function SharePage() {
       </p>
 
       {error && <Alert>{error}</Alert>}
+
+      {/* Evidências criadas antes da conversão automática ainda não têm PDF. */}
+      {(missingPdfs > 0 || pdfMessage) && (
+        <Card className="space-y-3">
+          {pdfMessage ? (
+            <Alert type="success">{pdfMessage}</Alert>
+          ) : (
+            <>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                <b>{missingPdfs}</b> evidência{missingPdfs > 1 ? 's' : ''} ainda não tem versão em PDF (foram criadas
+                antes dessa funcionalidade). Gere agora para que apareçam no link compartilhado.
+              </p>
+              <Button className="w-full" onClick={handleGenerateMissing} disabled={Boolean(pdfProgress)}>
+                {pdfProgress || '📄 Gerar PDFs faltantes'}
+              </Button>
+            </>
+          )}
+        </Card>
+      )}
 
       <Card className="space-y-3">
         <Input

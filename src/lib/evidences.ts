@@ -118,6 +118,41 @@ export async function generateAndSavePdf(evidenceId: string): Promise<void> {
   if (error) throw error
 }
 
+// Quantas evidências ainda não têm PDF (itens criados antes desta funcionalidade).
+export async function countEvidencesWithoutPdf(): Promise<number> {
+  const { count, error } = await supabase
+    .from('evidences')
+    .select('id', { count: 'exact', head: true })
+    .is('pdf_path', null)
+  if (error) throw error
+  return count ?? 0
+}
+
+// Gera o PDF de todas as evidências que ainda não têm um.
+// Processa uma por vez para não sobrecarregar o navegador do celular.
+export async function generateMissingPdfs(
+  onProgress?: (done: number, total: number) => void,
+): Promise<{ total: number; failed: number }> {
+  const { data, error } = await supabase.from('evidences').select('id').is('pdf_path', null)
+  if (error) throw error
+  const ids = (data ?? []).map((row) => (row as { id: string }).id)
+
+  let done = 0
+  let failed = 0
+  for (const id of ids) {
+    try {
+      await generateAndSavePdf(id)
+    } catch (err) {
+      // Uma evidência problemática não deve interromper o lote inteiro.
+      console.error(`Falha ao gerar PDF da evidência ${id}:`, err)
+      failed += 1
+    }
+    done += 1
+    onProgress?.(done, ids.length)
+  }
+  return { total: ids.length, failed }
+}
+
 export async function deleteMedia(media: MediaAsset): Promise<void> {
   if (media.storage_path) {
     await supabase.storage.from('media').remove([media.storage_path])

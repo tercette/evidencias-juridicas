@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Evidence } from '../types'
-import { getEvidence, deleteEvidence } from '../lib/evidences'
+import { getEvidence, deleteEvidence, generateAndSavePdf } from '../lib/evidences'
 import { publicUrl } from '../lib/media'
 import { formatDate, kindLabel } from '../lib/format'
 import { MediaView } from '../components/MediaView'
@@ -12,6 +12,7 @@ export function EvidenceDetailPage() {
   const navigate = useNavigate()
   const [ev, setEv] = useState<Evidence | null>(null)
   const [loading, setLoading] = useState(true)
+  const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -21,6 +22,21 @@ export function EvidenceDetailPage() {
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [id])
+
+  // Evidências criadas antes da conversão automática não têm PDF ainda.
+  async function handleGeneratePdf() {
+    if (!ev) return
+    setError('')
+    setGenerating(true)
+    try {
+      await generateAndSavePdf(ev.id)
+      setEv(await getEvidence(ev.id))
+    } catch (err) {
+      setError((err as Error).message ?? 'Não foi possível gerar o PDF.')
+    } finally {
+      setGenerating(false)
+    }
+  }
 
   async function handleDelete() {
     if (!ev) return
@@ -42,7 +58,7 @@ export function EvidenceDetailPage() {
         <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">{ev.title}</h1>
         <p className="text-sm text-slate-400 dark:text-slate-500">📅 {formatDate(ev.fact_date)}</p>
         {ev.description && <p className="whitespace-pre-wrap text-slate-600 dark:text-slate-300">{ev.description}</p>}
-        {ev.pdf_path && (
+        {ev.pdf_path ? (
           <a
             href={publicUrl(ev.pdf_path)}
             target="_blank"
@@ -51,6 +67,10 @@ export function EvidenceDetailPage() {
           >
             📄 Abrir versão em PDF
           </a>
+        ) : (
+          <Button variant="outline" className="mt-1 w-full" onClick={handleGeneratePdf} disabled={generating}>
+            {generating ? 'Gerando PDF…' : '📄 Gerar versão em PDF'}
+          </Button>
         )}
       </Card>
 
