@@ -23,9 +23,9 @@ export function buildStoragePath(userId: string, evidenceId: string, filename: s
   return `${userId}/${evidenceId}/${rand}.${ext}`
 }
 
-export async function uploadFile(path: string, file: Blob, contentType?: string) {
+export async function uploadFile(path: string, file: Blob, contentType?: string, upsert = false) {
   return supabase.storage.from('media').upload(path, file, {
     contentType: contentType || (file as File).type || 'application/octet-stream',
-    upsert: false,
+    upsert,
   })
 }

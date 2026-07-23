@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import type { MediaAsset } from '../types'
 import { formatDate, kindLabel } from '../lib/format'
 import { MediaView } from '../components/MediaView'
+import { publicUrl } from '../lib/media'
 import { Card, Spinner, Alert } from '../components/ui'
 import { ThemeToggle } from '../components/ThemeToggle'
 
@@ -12,6 +13,7 @@ interface SharedEvidence {
   title: string
   description: string | null
   fact_date: string | null
+  pdf_path: string | null
   created_at: string
   media: Pick<MediaAsset, 'id' | 'kind' | 'storage_path' | 'external_url' | 'mime_type'>[]
 }
@@ -72,6 +74,16 @@ export function PublicViewPage() {
               <p className="text-xs text-slate-400 dark:text-slate-500">📅 {formatDate(ev.fact_date)}</p>
             </div>
             {ev.description && <p className="whitespace-pre-wrap text-sm text-slate-600 dark:text-slate-300">{ev.description}</p>}
+            {ev.pdf_path && (
+              <a
+                href={publicUrl(ev.pdf_path)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-medium text-brand-600 hover:underline dark:text-brand-100"
+              >
+                📄 Abrir versão em PDF
+              </a>
+            )}
             {ev.media.map((m) => (
               <div key={m.id} className="space-y-1">
                 <span className="text-xs text-slate-400 dark:text-slate-500">{kindLabel(m.kind)}</span>

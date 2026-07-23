@@ -7,6 +7,7 @@ import {
   getEvidence,
   saveMedia,
   deleteMedia,
+  generateAndSavePdf,
 } from '../lib/evidences'
 import { MediaCapture, type PendingMedia } from '../components/MediaCapture'
 import { MediaView } from '../components/MediaView'
@@ -25,6 +26,7 @@ export function EvidenceEditorPage() {
   const [existing, setExisting] = useState<MediaAsset[]>([])
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
+  const [status, setStatus] = useState('')
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -62,6 +64,7 @@ export function EvidenceEditorPage() {
       return
     }
     setSaving(true)
+    setStatus('Salvando…')
     try {
       const input = {
         title: title.trim(),
@@ -76,11 +79,16 @@ export function EvidenceEditorPage() {
         evidenceId = created.id
       }
       if (pending.length > 0) {
+        setStatus('Enviando mídias…')
         await saveMedia(evidenceId!, pending)
       }
+      // Converte o conteúdo (texto + imagens) para PDF antes de concluir.
+      setStatus('Gerando PDF…')
+      await generateAndSavePdf(evidenceId!)
       navigate(`/item/${evidenceId}`)
     } catch (err) {
       setError((err as Error).message ?? 'Erro ao salvar')
+      setStatus('')
       setSaving(false)
     }
   }
@@ -141,7 +149,7 @@ export function EvidenceEditorPage() {
             Cancelar
           </Button>
           <Button type="submit" className="flex-1" disabled={saving}>
-            {saving ? 'Salvando…' : 'Salvar'}
+            {saving ? status || 'Salvando…' : 'Salvar'}
           </Button>
         </div>
       </form>

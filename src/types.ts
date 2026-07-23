@@ -8,6 +8,8 @@ export interface MediaAsset {
   storage_path: string | null
   external_url: string | null
   mime_type: string | null
+  // Nome original do arquivo enviado (aparece na lista de anexos do PDF).
+  filename: string | null
   created_at: string
 }
 
@@ -18,6 +20,8 @@ export interface Evidence {
   description: string | null
   // Data em que o fato ocorreu (documentação do acontecido).
   fact_date: string | null
+  // Caminho no Storage do PDF gerado a partir do texto + imagens.
+  pdf_path: string | null
   created_at: string
   updated_at: string
   media?: MediaAsset[]

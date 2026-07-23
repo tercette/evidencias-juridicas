@@ -13,6 +13,9 @@ App **mobile-first** para o usuário manter um arquivo pessoal de evidências (f
 1. Crie um projeto grátis em [supabase.com](https://supabase.com).
 2. Em **SQL Editor → New query**, cole todo o conteúdo de [`supabase/schema.sql`](supabase/schema.sql) e clique **Run**.
    Isso cria as tabelas, o RLS (segurança por usuário), o bucket público `media` e a função de compartilhamento.
+
+   > **Já tinha rodado o schema antes?** Rode também [`supabase/migration-pdf.sql`](supabase/migration-pdf.sql),
+   > que adiciona as colunas usadas pela geração de PDF (`evidences.pdf_path` e `media_assets.filename`).
 3. Em **Settings → API**, copie:
    - **Project URL** → `VITE_SUPABASE_URL`
    - **anon public** key → `VITE_SUPABASE_ANON_KEY`
@@ -71,6 +74,28 @@ Abra o endereço que o Vite mostrar (ex.: `http://localhost:5173`).
 > para `/NOME-DO-REPO/`.
 
 ---
+
+## Conversão automática em PDF
+
+Ao **salvar** uma evidência (nova ou editada), o app gera no próprio navegador um **PDF
+por evidência** e o guarda no Storage:
+
+- **Página 1:** nome, data do fato, data de geração e a descrição (o texto digitado).
+- **Páginas seguintes:** cada **imagem** em uma página, ajustada à proporção — vale tanto
+  para fotos batidas pela câmera quanto para imagens enviadas do dispositivo.
+- **Última página:** lista de **anexos** que não cabem em PDF (áudio, vídeo, links e
+  documentos já enviados), com tipo e nome do arquivo.
+
+Os **arquivos originais continuam salvos** — o PDF é uma versão documental adicional, e não
+um substituto. Isso preserva os metadados originais das mídias.
+
+O PDF aparece como **"📄 Abrir versão em PDF"** no detalhe da evidência e também na página
+pública de compartilhamento. Cada novo salvamento **regera** o documento, mantendo-o
+sincronizado com o conteúdo atual.
+
+> A biblioteca de PDF é carregada sob demanda (só na hora de salvar), para não pesar o
+> carregamento inicial no celular. Imagens são normalizadas para JPEG via canvas, o que
+> também resolve formatos como HEIC do iPhone.
 
 ## Como o compartilhamento funciona
 

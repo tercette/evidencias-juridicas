@@ -15,9 +15,13 @@ create table if not exists public.evidences (
   title       text not null,
   description text,
   fact_date   date,                       -- data em que o fato ocorreu
+  pdf_path    text,                       -- PDF gerado da evidência (bucket "media")
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
+
+-- Para bases criadas antes da versão em PDF:
+alter table public.evidences add column if not exists pdf_path text;
 
 create index if not exists evidences_owner_idx on public.evidences (owner_id, created_at desc);
 
@@ -32,8 +36,12 @@ create table if not exists public.media_assets (
   storage_path text,          -- caminho no bucket "media" (para arquivos)
   external_url text,          -- URL externa (para o tipo "link")
   mime_type    text,
+  filename     text,          -- nome original do arquivo (usado no PDF)
   created_at   timestamptz not null default now()
 );
+
+-- Para bases criadas antes da versão em PDF:
+alter table public.media_assets add column if not exists filename text;
 
 create index if not exists media_evidence_idx on public.media_assets (evidence_id);
 
@@ -136,7 +144,7 @@ begin
   into v_result
   from (
     select
-      ev.id, ev.title, ev.description, ev.fact_date, ev.created_at,
+      ev.id, ev.title, ev.description, ev.fact_date, ev.pdf_path, ev.created_at,
       coalesce(
         (select jsonb_agg(jsonb_build_object(
             'id', m.id, 'kind', m.kind,

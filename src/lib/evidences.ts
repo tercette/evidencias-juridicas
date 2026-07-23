@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
-import { buildStoragePath, uploadFile } from './media'
+import { buildStoragePath, uploadFile, publicUrl } from './media'
+import type { PdfAttachment, PdfImageSource } from './pdf'
 import type { Evidence, MediaAsset } from '../types'
 import type { PendingMedia } from '../components/MediaCapture'
 
@@ -72,9 +73,49 @@ export async function saveMedia(evidenceId: string, items: PendingMedia[]): Prom
       storage_path,
       external_url: item.externalUrl ?? null,
       mime_type: item.mime ?? null,
+      filename: item.filename ?? null,
     })
     if (error) throw error
   }
+}
+
+// Gera o PDF da evidência (texto + imagens) e salva no Storage.
+// É chamado sempre que a evidência é criada ou editada, para o documento
+// refletir o conteúdo atual. Os arquivos originais continuam guardados.
+export async function generateAndSavePdf(evidenceId: string): Promise<void> {
+  const ev = await getEvidence(evidenceId)
+  const media = ev.media ?? []
+
+  const images: PdfImageSource[] = media
+    .filter((m) => m.kind === 'foto' && m.storage_path)
+    .map((m) => ({ url: publicUrl(m.storage_path) }))
+
+  // Áudio, vídeo, links e documentos não viram página: são listados como anexos.
+  const attachments: PdfAttachment[] = media
+    .filter((m) => m.kind !== 'foto')
+    .map((m) => ({
+      kind: m.kind,
+      label: m.external_url ?? m.filename ?? 'arquivo enviado',
+    }))
+
+  // Import dinâmico: a biblioteca de PDF só é baixada na hora de salvar,
+  // mantendo o carregamento inicial do app leve no celular.
+  const { buildEvidencePdf } = await import('./pdf')
+  const blob = await buildEvidencePdf(
+    { title: ev.title, description: ev.description, fact_date: ev.fact_date },
+    images,
+    attachments,
+  )
+
+  const { data: userData } = await supabase.auth.getUser()
+  const owner_id = userData.user!.id
+  // Caminho fixo por evidência: regerar sobrescreve a versão anterior.
+  const path = `${owner_id}/${evidenceId}/evidencia.pdf`
+  const { error: upErr } = await uploadFile(path, blob, 'application/pdf', true)
+  if (upErr) throw upErr
+
+  const { error } = await supabase.from('evidences').update({ pdf_path: path }).eq('id', evidenceId)
+  if (error) throw error
 }
 
 export async function deleteMedia(media: MediaAsset): Promise<void> {
