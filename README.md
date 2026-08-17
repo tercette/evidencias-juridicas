@@ -15,7 +15,10 @@ App **mobile-first** para o usuário manter um arquivo pessoal de evidências (f
    Isso cria as tabelas, o RLS (segurança por usuário), o bucket público `media` e a função de compartilhamento.
 
    > **Já tinha rodado o schema antes?** Rode também [`supabase/migration-pdf.sql`](supabase/migration-pdf.sql),
-   > que adiciona as colunas usadas pela geração de PDF (`evidences.pdf_path` e `media_assets.filename`).
+   > que adiciona as colunas usadas pela geração de PDF (`evidences.pdf_path` e `media_assets.filename`),
+   > e [`supabase/migration-storage-update.sql`](supabase/migration-storage-update.sql), que adiciona a
+   > policy de UPDATE no bucket `media` — sem ela, **editar** uma evidência falha com
+   > *"new row violates row-level security policy"* ao regerar o PDF sobre o arquivo já existente.
 3. Em **Settings → API**, copie:
    - **Project URL** → `VITE_SUPABASE_URL`
    - **anon public** key → `VITE_SUPABASE_ANON_KEY`
